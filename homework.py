@@ -1,21 +1,25 @@
+from typing import Dict, Type
+
+
 class InfoMessage:
     """Информационное сообщение о тренировке."""
 
     INFO_MESSAGE: str = (
-        'Тип тренировки: {t_type}; '
-        'Длительность: {durat:.3f} ч.; '
-        'Дистанция: {dist:.3f} км; '
-        'Ср. скорость: {speed:.3f} км/ч; '
-        'Потрачено ккал: {calor:.3f}.'
+        "Тип тренировки: {training_type}; "
+        "Длительность: {duration:.3f} ч.; "
+        "Дистанция: {distance:.3f} км; "
+        "Ср. скорость: {speed:.3f} км/ч; "
+        "Потрачено ккал: {calories:.3f}."
     )
 
-    def __init__(self,
-                 training_type: str,
-                 duration: float,
-                 distance: float,
-                 speed: float,
-                 calories: float
-                 ) -> None:
+    def __init__(
+        self,
+        training_type: str,
+        duration: float,
+        distance: float,
+        speed: float,
+        calories: float,
+    ) -> None:
         self.duration = duration
         self.distance = distance
         self.speed = speed
@@ -24,13 +28,12 @@ class InfoMessage:
 
     def get_message(self) -> str:
         """Вывод сообщения"""
-        return (self.INFO_MESSAGE.format(
-            t_type=self.training_type,
-            durat=self.duration,
-            dist=self.distance,
+        return self.INFO_MESSAGE.format(
+            training_type=self.training_type,
+            duration=self.duration,
+            distance=self.distance,
             speed=self.speed,
-            calor=self.calories
-        )
+            calories=self.calories,
         )
 
 
@@ -41,11 +44,12 @@ class Training:
     M_IN_KM: int = 1000
     MIN_IN_HOUR: int = 60
 
-    def __init__(self,
-                 action: int,
-                 duration: float,
-                 weight: float,
-                 ) -> None:
+    def __init__(
+        self,
+        action: int,
+        duration: float,
+        weight: float,
+    ) -> None:
         self.action = action
         self.duration = duration
         self.weight = weight
@@ -69,7 +73,7 @@ class Training:
             self.duration,
             self.get_distance(),
             self.get_mean_speed(),
-            self.get_spent_calories()
+            self.get_spent_calories(),
         )
 
 
@@ -80,11 +84,14 @@ class Running(Training):
     CALORIES_MEAN_SPEED_SHIFT: float = 1.79
 
     def get_spent_calories(self) -> float:
-        return ((
-            self.CALORIES_MEAN_SPEED_MULTIPLIER
-            * self.get_mean_speed()
-            + self.CALORIES_MEAN_SPEED_SHIFT)
-            * self.weight / self.M_IN_KM * self.duration
+        return (
+            (
+                self.CALORIES_MEAN_SPEED_MULTIPLIER * self.get_mean_speed()
+                + self.CALORIES_MEAN_SPEED_SHIFT
+            )
+            * self.weight
+            / self.M_IN_KM
+            * self.duration
             * self.MIN_IN_HOUR
         )
 
@@ -97,18 +104,25 @@ class SportsWalking(Training):
     KMH_IN_MSEC: float = 0.278
     SM_IN_M: int = 100
 
-    def __init__(self, action: int, duration: float,
-                 weight: float, height: float) -> None:
+    def __init__(
+        self, action: int, duration: float, weight: float, height: float
+    ) -> None:
         super().__init__(action, duration, weight)
         self.height = height
 
     def get_spent_calories(self) -> float:
-        return ((
-            self.CONSTANT_WLK_ONE * self.weight
-            + ((self.get_mean_speed() * self.KMH_IN_MSEC) ** 2
-               / (self.height / self.SM_IN_M))
-            * self.CONSTANT_WLK_TWO * self.weight)
-            * self.duration * self.MIN_IN_HOUR
+        return (
+            (
+                self.CONSTANT_WLK_ONE * self.weight
+                + (
+                    (self.get_mean_speed() * self.KMH_IN_MSEC) ** 2
+                    / (self.height / self.SM_IN_M)
+                )
+                * self.CONSTANT_WLK_TWO
+                * self.weight
+            )
+            * self.duration
+            * self.MIN_IN_HOUR
         )
 
 
@@ -119,35 +133,39 @@ class Swimming(Training):
     CONSTANT_SWM_TWO: int = 2
     LEN_STEP: float = 1.38
 
-    def __init__(self, action: int, duration: float, weight: float,
-                 length_pool: float, count_pool: float) -> None:
+    def __init__(
+        self,
+        action: int,
+        duration: float,
+        weight: float,
+        length_pool: float,
+        count_pool: float,
+    ) -> None:
         super().__init__(action, duration, weight)
         self.count_pool = count_pool
         self.length_pool = length_pool
 
     def get_mean_speed(self) -> float:
-        return (
-            self.length_pool * self.count_pool
-            / self.M_IN_KM / self.duration
-        )
+        return (self.length_pool * self.count_pool
+                / self.M_IN_KM / self.duration)
 
     def get_spent_calories(self) -> float:
         return (
             (self.get_mean_speed() + self.CONSTANT_SWM_ONE)
-            * self.CONSTANT_SWM_TWO * self.weight
+            * self.CONSTANT_SWM_TWO
+            * self.weight
             * self.duration
         )
 
 
 def read_package(workout_type: str, data: list[int, float]) -> Training:
     """Прочитать данные полученные от датчиков."""
-    from typing import Dict, Type
     train_class: Dict[str, Type[Training]] = {
-        'RUN': Running,
-        'WLK': SportsWalking,
-        'SWM': Swimming
+        "RUN": Running,
+        "WLK": SportsWalking,
+        "SWM": Swimming,
     }
-    if type(workout_type) != str:
+    if not isinstance(workout_type, str):
         raise ValueError("А здесь понятный текст, что пошло нет так")
     return train_class[workout_type](*data)
 
@@ -159,11 +177,11 @@ def main(training: Training) -> None:
     print(info_message)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     packages = [
-        ('SWM', [720, 1, 80, 25, 40]),
-        ('RUN', [15000, 1, 75]),
-        ('WLK', [9000, 1, 75, 180]),
+        ("SWM", [720, 1, 80, 25, 40]),
+        ("RUN", [15000, 1, 75]),
+        ("WLK", [9000, 1, 75, 180]),
     ]
 
     for workout_type, data in packages:
